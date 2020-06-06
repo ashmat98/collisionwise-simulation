@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+cmake-build-debug/
+cmake-build-release/
+draft/
+resources/
+*.bin
+*.binnary
+*.py[cod]
+*.png
