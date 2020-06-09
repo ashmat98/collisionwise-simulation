@@ -63,6 +63,8 @@ tuple<int,int> find_mn_for(Real a, Real b, Real r, Real eps){
      * 
      ***/
 
+    cout<<"find mn for: a="<<a<<" b="<<b<<" r="<<r<<" eps="<<eps<<endl;
+
     if (is_solution(0,a,b,r,eps))
         return get_solution(0,a,b,r);
     
@@ -103,7 +105,9 @@ tuple<int,int> find_mn_for(Real a, Real b, Real r, Real eps){
 
 
 AbstractEngine::AbstractEngine(Real a, Real b, Real eps):
-    a(a),b(b),eps(eps),current_a(a),last_m(0),last_n(0){};
+    a(a),b(b),eps(eps),current_a(a),last_m(0),last_n(0){
+//    cout<<"Engine created for a="<<a<<" b="<<b<<" eps="<<eps<<endl;
+};
 
 
 tuple<int,int> AbstractEngine::next(){

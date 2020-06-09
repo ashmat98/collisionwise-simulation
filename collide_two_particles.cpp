@@ -7,10 +7,10 @@ bool test_cllision(){
     Real radius = 0.01;
     bool test_result = true;
     Box box(1,2,3);
-    Particle p1(radius, box);
-    Particle p2(radius, box);
+    Particle p1(box, radius,1);
+    Particle p2(box, radius,1);
     auto p3 = p1.realtive_to(p2);
-    p3.back_to_box();
+    p3.back_to_box_inplace();
 
     auto point = p3.r + p3.v * 40+
         eg::Vector3d(0,0,p3.radius/2);
@@ -32,16 +32,23 @@ struct V4{
     double side, r, v, proj;
 };
 bool comp1(V4& a, V4& b){
-    return a.proj * b.side < b.proj*a.side;
+    return a.v > b.v;
 }
+
+const Real eps = 1e-20;
 
 bool collide_with_lattice(Particle particle, 
     Real& collision_time, Particle* p1, Particle* p2){
-//    cout<<particle<<endl;
 
     Particle p = particle.abs();
-    p.back_to_box();
+    p.back_to_box_inplace();
+
+
 //    cout<<p<<endl;
+//    cout<<*p1<<endl;
+//    cout<<*p2<<endl;
+//    cout<<endl;
+
 
     auto proj = p.get_projected_lengths();
     eg::Matrix<double,4,3> M;
@@ -57,21 +64,32 @@ bool collide_with_lattice(Particle particle,
     // cout<<M<<endl;
     /////0,1,2,3
     //// a,x,v,ro
-    Real delta_t = M(0,1)/M(2,1);
-    Real t_0 = -M(1,1)/M(2,1);
+    Real delta_t = M(0,0)/M(2,0); //   a1 / v1
+    Real t_0 = -M(1,0)/M(2,0);    //  -x1 / v1
 
-    Real b1 = (M(2,0)/M(2,1)) * (M(0,1)/M(0,0));
-    Real a1 = (M(1,0) - M(1,1)*(M(2,0)/M(2,1)))/M(0,0);
-    Real eps1 = M(3,0) / M(0,0);
+    Real b2 = (M(2,1)/(M(2,0))) * (M(0,0)/M(0,1));
+    //   b2 = (v2/v1)(a1/a2) = v2/a2 * delta_t
+    Real a2 = (M(1,1) - M(1,0)*(M(2,1)/(M(2,0))))/M(0,1);
+    //   a2 = (x2 - x1(v2/v1)) / a2
+    Real eps2 = M(3,1) / M(0,1);
+    //   eps2 = ro2 / a2
 
-    Real b3 = (M(2,2)/M(2,1)) * (M(0,1)/M(0,2));
-    Real a3 = (M(1,2) - M(1,1)*(M(2,2)/M(2,1)))/M(0,2);
+    Real b3 = (M(2,2)/(M(2,0))) * (M(0,0)/M(0,2));
+    //   b3 = (v3/v1)(a1/a3)
+    Real a3 = (M(1,2) - M(1,0)*(M(2,2)/(M(2,0))))/M(0,2);
+    //   a3 = (x3 - x1(v3/v1)) / a3
     Real eps3 = M(3,2) / M(0,2);
+    //   eps3 = ro3 / a3
     ////
+    Real a,b,eps;
+    if (eps2 < eps3){ // ro2 < ro3
+        a=a2; b=b2; eps=eps2;
+    }
+    else{
+        a=a3,b=b3,eps=eps3;
+    }
+    FastEngine eng(a, b, eps);
 
-
-    FastEngine eng(a1, b1, eps1);
-    
     bool found = false;
     while (true){
         auto [m,n] = eng.next();

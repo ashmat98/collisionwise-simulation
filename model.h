@@ -29,14 +29,18 @@ struct Model{
     ///
     int _button=0;
 
-    Model(int num_particles, Real particle_radius, Box box);
-    int add_particle();
+    chrono::time_point<chrono::steady_clock,
+        chrono::duration<double, std::milli>> start_time_in_universe;
+
+    Model(Box box, int num_particles=0, Real particle_radius=-1, Real particle_mass=1);
+    int add_particle(Real radius, Real mass=1);
+    int add_particle(Particle);
     void init_queue();
     void init_queue_parallel();
 
     void distant_collide(Particle& p1, Particle& p2);
     void update_particle_position(Particle &p);
-    void update_particle_collisions_with_others(Particle& p);
+    void update_particle_collisions_with_others(Particle p);
     TimeQueueObj predict_collide_of(Particle& p1, Particle& p2);
     TimeQueueObj predict_collide_of(TimeQueueObj& old_tqo){
         return predict_collide_of(*old_tqo.p1, *old_tqo.p2);
@@ -61,6 +65,9 @@ struct Model{
         cout<<"max queue len....."<<max_queue_size<<endl;
         cout<<"p in box.........."<<particles_in_box<<"/"<<particles.size()<<endl;
         cout<<"mean velocity....."<<mean_v<<endl;
+        cout<<"  running time...."<<(std::chrono::duration<double, std::milli>(
+                        std::chrono::steady_clock::now() - start_time_in_universe)
+                .count())/1000 <<" seconds"<<endl;
 
         cout<<endl;
     }
@@ -77,7 +84,9 @@ struct Model{
         return h.hash();
     }
 
-    void dump(string path, string name="");
+    void dump(string path, string name="",
+            bool back_to_box=false, vector<int> particle_list={});
+    void dump_inits(string path);
 
     ~Model();
 

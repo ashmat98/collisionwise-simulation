@@ -9,6 +9,7 @@ struct Particle{
     eg::Vector3d r;
     eg::Vector3d v;
     Real radius;
+    Real mass;
     Box & box;
 
     Real last_update_time = 0;
@@ -18,12 +19,14 @@ struct Particle{
 
     int id;
 
-    Particle(eg::Vector3d r, 
-    eg::Vector3d v,Real radius, Box & box,int id=-1);
-    Particle(Real radius, Box & box, int id=-1);
+    Particle(Box & box, eg::Vector3d r,
+    eg::Vector3d v,Real radius,Real mass=1,int id=-1);
+    Particle(Box & box, Real radius, Real mass=1, int id=-1);
 
     Particle realtive_to(Particle p2);
-    Particle& back_to_box();
+    Particle& back_to_box_inplace();
+    eg::Vector3d back_to_box();
+
     bool in_box(){
         return  (r.array()<box.sides.array()).all() &&(r.array()>0).all();
     }

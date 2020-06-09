@@ -1,23 +1,36 @@
 CXX = g++
-CXXFLAGS = -Wall -g -std=c++17 -mavx2 -O2
+CXXFLAGS = -Wall -g -std=c++17 -mavx2
 
-DD = default.h
 
-main: model.o collide_two_particles.o eps_close.o \
-	  myrandom.o particle.o
-	$(CXX) $(CXXFLAGS) -o main model.o collide_two_particles.o \
-	eps_close.o \
-	myrandom.o particle.o
+main: main.o collide_two_particles.o  eps_close.o \
+	  hashing.o model_base.o model_dump.o model_parallel_collide.o \
+	  myrandom.o particle.o thread_pool.o time_queue.o
+	$(CXX) $(CXXFLAGS) -o main main.o collide_two_particles.o  eps_close.o \
+  hashing.o model_base.o model_dump.o model_parallel_collide.o \
+  myrandom.o particle.o thread_pool.o time_queue.o
 
-model.o: default.h collide_two_particles.h box.h
-
-particle.o: default.h myrandom.h box.h particle.h
+main.o: box.h model.h eps_close.h
 
 collide_two_particles.o: eps_close.h collide_two_particles.h
 
 eps_close.o: eps_close.h
 
+hashing.o: hashing.h
+
+model_base.o: model.h
+
+model_dump.o: model.h
+
+model_parallel_collide.o: model.h
+
 myrandom.o: myrandom.h
+
+particle.o: default.h particle.h
+
+thread_pool.o: thread_pool.h
+
+time_queue.o: time_queue.h
+
 
 clean :
 	del *.o

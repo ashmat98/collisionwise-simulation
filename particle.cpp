@@ -1,27 +1,35 @@
 #include "default.h"
 #include "particle.h"
 
+#include <utility>
 
-Particle::Particle(eg::Vector3d r, 
-    eg::Vector3d v, Real radius, Box & box,int id):
-    r(r),v(v),radius(radius),box(box),id(id){
+
+Particle::Particle(Box & box,eg::Vector3d r,
+    eg::Vector3d v, Real radius, Real mass, int id):
+    r(std::move(r)),v(std::move(v)),radius(radius),mass(mass),box(box),id(id){
 
 }
-Particle::Particle(Real radius, Box & box,int id):
-    radius(radius),box(box),id(id){
+Particle::Particle(Box & box, Real radius, Real mass, int id):
+    radius(radius),mass(mass),box(box),id(id){
         r << randu(),randu(),randu();
         r = r.cwiseProduct(box.sides);
-        v << randn(),randn(),randn();
+        v << randu(),randu(),randu();
 }
 
 Particle Particle::realtive_to(Particle p2){
-    return Particle(r-p2.r, v-p2.v,p2.radius + radius, box);
+    return Particle(box, r-p2.r, v-p2.v,p2.radius + radius,
+            mass * p2.mass / (mass * p2.mass));
 }
 
-Particle& Particle::back_to_box(){
+Particle& Particle::back_to_box_inplace(){
     r = r - (box.sides.array() * floor(
         r.cwiseQuotient(box.sides).array())).matrix();
         return (*this);
+}
+
+eg::Vector3d Particle::back_to_box(){
+    return r - (box.sides.array() * floor(
+            r.cwiseQuotient(box.sides).array())).matrix();
 }
 
 bool Particle::does_collide_with(eg::Vector3d point){
@@ -47,8 +55,12 @@ eg::Vector3d Particle::at_time(Real t){
     return r + v.cwiseProduct(eg::Vector3d::Constant(t));
 }
 eg::Vector3d Particle::get_projected_lengths(){
+    /***
+     * Shadow of the ball on the lattice lines for each direction
+     * Pr = a/cos(b)  sin(b) = vi/v
+     */
     auto v1 = v.array();
-    return (radius/sqrt(1-v1*v1/v.squaredNorm())).matrix(); 
+    return (radius/sqrt(EPS+1-v1*v1/v.squaredNorm())).matrix();
 }
 Particle Particle::abs(){
         auto va = v.array();
@@ -57,7 +69,7 @@ Particle Particle::abs(){
         auto r1 = ra* (va>0).cast<double>() - 
             ra * (va<0).cast<double>();
         auto v1 = va.abs();
-        return Particle(r1.matrix(), v1.matrix(), radius, box);
+        return Particle(box, r1.matrix(), v1.matrix(), radius,1);
     }
 
 ostream& operator<<(
