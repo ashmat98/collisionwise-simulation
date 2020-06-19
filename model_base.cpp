@@ -5,8 +5,9 @@
 #include "model.h"
 #include <assert.h>
 
-Model::Model(Box box, int num_particles, Real particle_radius, Real particle_mass):
-box(box),N(0),pool(MAX_THREADS),time(box.time){
+
+Model::Model(Box box_, int num_particles, Real particle_radius, Real particle_mass):
+box(box_),N(0),pool(MAX_THREADS),time(box.time){
     particles.reserve(num_particles);
     assert(num_particles==0 || (particle_radius > 0 && particle_mass>0));
 
@@ -15,7 +16,6 @@ box(box),N(0),pool(MAX_THREADS),time(box.time){
     for (int i=0;i<num_particles;i++){
         add_particle(particle_radius, particle_mass);
     }
-
 }
 
 int Model::add_particle(Real radius,Real mass){
@@ -35,14 +35,14 @@ int Model::add_particle(Particle particle){
 
 void Model::distant_collide(Particle& p1, Particle& p2){
     auto R = box.min_difference(p2.r, p1.r);
+
     auto v1_perp = p1.v.dot(R)/R.squaredNorm() * R;
     auto v2_perp = p2.v.dot(R)/R.squaredNorm() * R;
     auto v_c = (v1_perp*p1.mass + v2_perp*p2.mass)/(p1.mass+p2.mass);
+
     p1.v = p1.v - v1_perp + 2*v_c-v1_perp;
     p2.v = p2.v - v2_perp + 2*v_c-v2_perp;
 
-//    p1.v = p1.v - v1_perp + v2_perp;
-//    p2.v = p2.v - v2_perp + v1_perp;
     p1.last_collision_time = time;
     p2.last_collision_time = time;
 }
@@ -52,24 +52,17 @@ void Model::update_particle_position(Particle& p){
     p.last_update_time = time;
 }
 void Model::update_particle_collisions_with_others(Particle p) {
-    cout<<"model update_particle_collisions_with_others"<<endl;
-    cout<<p<<endl;
-//    if(_button==1){
-//        exit(0);
-//    }
     for (auto other : particles){
         if (other.id == p.id){continue;}
-
         time_queue.push(predict_collide_of(p, other));
         ++tqo_counter;
-
     }
 }
 
 
 bool Model::check_tqo_validity(const TimeQueueObj &tqo) {
-    return (tqo.obj_creation_time >= tqo.p1->last_collision_time
-            && tqo.obj_creation_time >= tqo.p2->last_collision_time);
+    return (tqo.obj_creation_time >= particles[tqo.p1].last_collision_time
+            && tqo.obj_creation_time >= particles[tqo.p2].last_collision_time);
 }
 inline int _max(int a, int b){
     return (a<b)?b:a;
@@ -94,12 +87,13 @@ int Model::step() {
         print_stats();
         exit(521);
     }
-    Particle& p1 = *tqo.p1;
-    Particle& p2 = *tqo.p2;
+    Particle& p1 = particles[tqo.p1];
+    Particle& p2 = particles[tqo.p2];
 
 
     update_particle_position(p1);
     update_particle_position(p2);
+
     if (tqo.collides){
         distant_collide(p1, p2);
         update_particle_collisions_with_others(p1);
@@ -133,9 +127,9 @@ TimeQueueObj Model::predict_collide_of(Particle& p1, Particle& p2){
 
     }
     if (_button == 1) {
-        cout << "tqo added " << TimeQueueObj(time, time + collision_time, collides, p1, p2) << endl;
+        cout << "tqo added " << TimeQueueObj(time, time + collision_time, collides, p1.id, p2.id) << endl;
     }
-    return TimeQueueObj(time, time+collision_time, collides, p1, p2);
+    return TimeQueueObj(time, time+collision_time, collides, p1.id, p2.id);
 }
 
 Model::~Model() {

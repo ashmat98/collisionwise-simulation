@@ -8,15 +8,14 @@
 #include <queue>
 
 struct TimeQueueObj{
-    Particle* p1;
-    Particle* p2;
+    int p1; // particle index in model
+    int p2; // particle index in model
     Real time;
     bool collides;
     Real obj_creation_time;
 
     TimeQueueObj(Real obj_creation_time, Real time,
-                 bool collides,
-                 Particle& p1, Particle& p2);
+                 bool collides, int p1, int p2);
 };
 ostream& operator<<(ostream& o, const TimeQueueObj& tqo);
 

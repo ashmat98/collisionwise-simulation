@@ -6,14 +6,13 @@
 
 ostream& operator<<(ostream& o, const TimeQueueObj& tqo){
     o << "time " << tqo.time << "(" << tqo.collides << ") "
-      << tqo.p1->id << " with " << tqo.p2->id << " created at " << tqo.obj_creation_time;
+      << tqo.p1 << " with " << tqo.p2 << " created at " << tqo.obj_creation_time;
     return o;
 }
 
 TimeQueueObj::TimeQueueObj(Real obj_creation_time,Real time,
-        bool collides,
-        Particle &p1, Particle &p2):
-        p1(&p1),p2(&p2),time(time),collides(collides),
+        bool collides, int p1, int p2):
+        p1(p1),p2(p2),time(time),collides(collides),
         obj_creation_time(obj_creation_time) {
 
 }

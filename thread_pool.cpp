@@ -10,13 +10,21 @@ int Task::id = 0;
 Task::~Task()=default;
 
 
-ThreadPool::ThreadPool(int n_threads):ready_task(NULL),running_tasks(0){
-    for (int i = 0; i < n_threads; i++){
-        threads.push_back(
-                std::thread(&ThreadPool::infinite_loop,this));
-    }
+ThreadPool::ThreadPool(int n_threads):_n_threads(n_threads),
+                        ready_task(NULL),running_tasks(0){
+
 };
+void ThreadPool::_create_pool() {
+    for (int i = 0; i < _n_threads; i++) {
+        threads.push_back(
+                std::thread(&ThreadPool::infinite_loop, this));
+    }
+    _pool_created = true;
+}
 void ThreadPool::add_task(Task* t){
+    if (!_pool_created) {
+        _create_pool();
+    }
     tasks.push(t);
     locker.notify_one();
 }

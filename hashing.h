@@ -13,7 +13,7 @@ struct Hash101{
 
     void update(long long x);
     void update(double x);
-    void update(Eigen::Vector3d &v);
+    void update(const Eigen::Vector3d &v);
     long long hash();
 };
 #endif //COLLISIONS_HASHING_H

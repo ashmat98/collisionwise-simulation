@@ -13,7 +13,8 @@ Particle::Particle(Box & box, Real radius, Real mass, int id):
     radius(radius),mass(mass),box(box),id(id){
         r << randu(),randu(),randu();
         r = r.cwiseProduct(box.sides);
-        v << randu(),randu(),randu();
+        v << randn(),randn(),randn();
+        v = v / v.norm();
 }
 
 Particle Particle::realtive_to(Particle p2){
@@ -76,6 +77,6 @@ ostream& operator<<(
     ostream& o, const Particle& p)
 {
     o << "Particle("<<p.id<<") r:{" << p.r.transpose() << "}\tv:{"
-    << p.v.transpose() <<"}"<< endl;
+    << p.v.transpose() <<"} "<<" R: "<<p.radius<<" m: "<<p.mass<< endl;
     return o;
 }

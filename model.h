@@ -16,7 +16,7 @@ struct Model{
     vector<Particle> particles;
     priority_queue<TimeQueueObj> time_queue;
 
-    Box & box;
+    Box box;
     int N;
     ThreadPool pool;
     Real& time;
@@ -32,7 +32,7 @@ struct Model{
     chrono::time_point<chrono::steady_clock,
         chrono::duration<double, std::milli>> start_time_in_universe;
 
-    Model(Box box, int num_particles=0, Real particle_radius=-1, Real particle_mass=1);
+    Model(Box box_, int num_particles=0, Real particle_radius=-1, Real particle_mass=1);
     int add_particle(Real radius, Real mass=1);
     int add_particle(Particle);
     void init_queue();
@@ -43,7 +43,8 @@ struct Model{
     void update_particle_collisions_with_others(Particle p);
     TimeQueueObj predict_collide_of(Particle& p1, Particle& p2);
     TimeQueueObj predict_collide_of(TimeQueueObj& old_tqo){
-        return predict_collide_of(*old_tqo.p1, *old_tqo.p2);
+        return predict_collide_of(particles[old_tqo.p1],
+                                  particles[old_tqo.p2]);
     }
     int step();
     bool check_tqo_validity(const TimeQueueObj& tqo);

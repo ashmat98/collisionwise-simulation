@@ -1,5 +1,7 @@
 #include <assert.h>
 #include "eps_close.h"
+#include <cmath>
+
 
 tuple<int,int> find_mn_basically(Real a, Real b, Real r, Real eps){
     /***
@@ -19,6 +21,7 @@ tuple<int,int> find_mn_basically(Real a, Real b, Real r, Real eps){
     }
     return {-1,-1};
 }
+
 vector<tuple<int,int>> find_mns(Real a, Real b, Real r, Real eps){
     /***
      * find integer solution to
@@ -63,7 +66,7 @@ tuple<int,int> find_mn_for(Real a, Real b, Real r, Real eps){
      * 
      ***/
 
-    cout<<"find mn for: a="<<a<<" b="<<b<<" r="<<r<<" eps="<<eps<<endl;
+//    cout<<"find mn for: a="<<a<<" b="<<b<<" r="<<r<<" eps="<<eps<<endl;
 
     if (is_solution(0,a,b,r,eps))
         return get_solution(0,a,b,r);
@@ -106,6 +109,9 @@ tuple<int,int> find_mn_for(Real a, Real b, Real r, Real eps){
 
 AbstractEngine::AbstractEngine(Real a, Real b, Real eps):
     a(a),b(b),eps(eps),current_a(a),last_m(0),last_n(0){
+    if (isnan(a) || isnan(b) || isnan(eps)){
+        exit(687);
+    }
 //    cout<<"Engine created for a="<<a<<" b="<<b<<" eps="<<eps<<endl;
 };
 

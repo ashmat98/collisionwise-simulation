@@ -25,9 +25,12 @@ struct Task{
 
 
 struct ThreadPool{
+    bool _n_threads;
     Task* ready_task;
+    bool _pool_created = false;
 
     ThreadPool(int n_threads);
+    void _create_pool();
     void add_task(Task * t);
     void infinite_loop();
     bool finished_task();
