@@ -4,6 +4,45 @@
 
 #include "model.h"
 #include <fstream>
+void Model::load_inits(string path) {
+    ifstream myfile (path,
+            ios::in | ios::binary );
+
+    myfile.read((char*)box.sides.data(), 3*8);
+    myfile.read((char*)&N, 4);
+    cout<<N<<endl;
+    particles.clear();
+
+    for(int i=0;i<N;++i){
+        particles.push_back(Particle(box, 1, 1, i));
+    }
+    for(auto& p: particles) {
+        myfile.read((char*) &p.radius, 1 * 8);
+    }
+    for(auto& p: particles) {
+        myfile.read((char*) &p.mass, 1 * 8);
+    }
+    myfile.close();
+
+}
+void Model::load(string path){
+    auto myfile = std::fstream(
+            path, std::ios::in | std::ios::binary);
+    myfile.read((char *)&box.time, 8);
+
+    int _n;
+    myfile.read((char*)&_n, 4);
+    assert(_n == N);
+
+    for(auto& p: particles){
+        myfile.read((char*)(p.r.data()), 3 * 8);
+
+    }
+    for(auto& p: particles) {
+        myfile.read((char*) p.v.data(), 3 * 8);
+    }
+    myfile.close();
+}
 
 void Model::dump(string path, string name,
                  bool back_to_box, vector<int> particle_list){

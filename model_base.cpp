@@ -90,9 +90,12 @@ int Model::step() {
     Particle& p1 = particles[tqo.p1];
     Particle& p2 = particles[tqo.p2];
 
+    for (auto& p : particles){
+        update_particle_position(p);
+    }
 
-    update_particle_position(p1);
-    update_particle_position(p2);
+//    update_particle_position(p1);
+//    update_particle_position(p2);
 
     if (tqo.collides){
         distant_collide(p1, p2);
@@ -110,9 +113,19 @@ int Model::step() {
 
 TimeQueueObj Model::predict_collide_of(Particle& p1, Particle& p2){
 
+//    if (collision_counter == 4211){
+//        cout<<
+//    }
+
     Real collision_time;
     bool collides = collide_with_lattice(
             p2.realtive_to(p1),collision_time, &p1, &p2);
+    if (_button == 1) {
+        cout<<"relative particle: "<<p2.realtive_to(p1)<<endl;
+        cout<<"   "<<p2.realtive_to(p1).back_to_box().transpose()<<endl;
+
+        cout << "collides: " << collides << " collision time: " << collision_time << endl;
+    }
     if (collides){
         Particle p1_ = p1;
         Particle p2_ = p2;
@@ -121,8 +134,11 @@ TimeQueueObj Model::predict_collide_of(Particle& p1, Particle& p2){
 //        p1_.back_to_box_inplace();
 //        p2_.back_to_box_inplace();
         Real f = box.min_difference(p1_.r,p2_.r).norm()/(p1.radius+p2.radius);
-        if (abs(f-1)>0.01){
+        if (_button || abs(f-1)>0.01){
+            cout<<collision_counter<<endl;
             cout<<"f"<<f<<" p1:" << p1<<"  p2:" <<p2<< endl;
+//            dump(PROJECT_DIR,"ERROR-FILE.bin");
+            exit(0);
         }
 
     }

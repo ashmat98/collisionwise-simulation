@@ -19,4 +19,4 @@ add_executable(collisions
         myrandom.cpp
         myrandom.h
         particle.cpp
-        particle.h time_queue.cpp time_queue.h main.cpp model.h model_base.cpp model_parallel_collide.cpp thread_pool.cpp thread_pool.h hashing.cpp hashing.h model_dump.cpp main_time_interval.h)
+        particle.h time_queue.cpp time_queue.h main.cpp model.h model_base.cpp model_parallel_collide.cpp thread_pool.cpp thread_pool.h hashing.cpp hashing.h model_dump.cpp main_time_interval.h main_simulation.h)

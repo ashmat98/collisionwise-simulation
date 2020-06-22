@@ -1,121 +1,50 @@
+#include "default.h"
+#include "main_simulation.h"
 
-#include "box.h"
-#include <chrono>
+#include "main_simulation.h"
+
+#include "particle.h"
 #include "model.h"
-#include "eps_close.h"
-#include <io.h>
 
-const string project_dir ("D:\\Ashot\\Desktop\\collisionwise-simulation");
+/*
+f1.91876 p1:Particle(79) r:{-42.9027 -58.3563  67.1153} v:{ -0.394935  -0.145312 -0.0945829}  R: 0.01 m: 1
+  p2:Particle(17) r:{-0.627921  -93.3465   56.3916}     v:{0.0276567 -0.493832 -0.235447}  R: 0.01 m: 1
 
-const Real radius_small = 0.01;
-const eg::Vector3d box_sides(1,1,1);
-const int N_particles = 100;
-
-
-
-void time_interval_simulate(){
+  */
+bool test_collision(){
     Model model(Box(1,1,1));
+    model._button=true;
+    Particle p1(model.box, {-42.9027, -58.3563,  67.1153}, { -0.394935,  -0.145312, -0.0945829} , 0.01, 1);
+    Particle p2(model.box, {-0.627921,  -93.3465 ,  56.3916},{0.0276567, -0.493832, -0.235447} , 0.01, 1);
 
-    model.add_particle(Particle(model.box,{0+0.2,0.5,0.5},
-                                {0.1,0,0}, 0.2, 300));
-    model.add_particle(Particle(model.box, {1-0.2,0.5,0.5},
-                                  {-2,0,0}, 0.05, 1));
+    model.predict_collide_of(p1, p2);
 
-    model.dump_inits(project_dir + "\\python");
-    model.init_queue();
-//    cout<<model.time<<" "<<model.box.time<<endl;
-//    for (int q=0;q<5;q++){
-//        auto x = model.time_queue.top();model.time_queue.pop();
-//        cout<<x<<" validity: "<<model.check_tqo_validity(x)<<
-//            " -> "<<model.predict_collide_of(x)<<endl;
-//    }
-
-
-    int bum = 0;
-    Real dt = 0.05;
-    mkdir((project_dir+"\\python\\simulation").c_str());
-    for(int i=0;bum<10;i++){
-        if(model.time_queue.empty()){
-            cout<<"empty time queue"<<endl;
-            break;
-        }
-        if (model.time_queue.top().time > model.time + dt){
-            model.time += dt;
-            for(auto& p : model.particles) {
-                model.update_particle_position(p);
-            }
-        }
-        else{
-            bool res = (2==model.step());
-            bum += res;
-            if (res){
-                model.print_stats();
-            }
-        }
-        if (model.time > -1) {
-            model.dump(project_dir + "\\python\\simulation",
-                    "",true);
-        }
-    }
-    cout<<"model hash: "<<model.hash()<<endl;
-
+    return 1;
 }
 
+bool test_collision2(){
+    Model model(Box(2,2,2));
+    model._button=true;
+    model.load_inits(PROJECT_DIR+"\\python\\model_inits.bin");
+    model.load(PROJECT_DIR+"\\ERROR-FILE1.bin");
+//    cout<<model.particles[79]<<endl;
+//    cout<<model.particles[17]<<endl;
 
-void run(){
-    auto start_time = std::chrono::steady_clock::now();
+//    cout<<model.box.sides.transpose()<<"  "<<model.box.time<<"  "<<model.time<<endl;
 
-    Model model(Box(box_sides), N_particles, radius_small);
+//    Particle p1(model.box, {-110.445, -77.3062,  80.6622},{0.454409, 0.856459,   1.4998} , 0.01, 1);
+//    Particle p2(model.box, {-15.3374,  6.04934,  65.1134}, {-0.421084,  0.918819,  0.252611}  , 0.01, 1);
 
-    model.init_queue();
-    model.dump_inits(project_dir+"\\python");
-    model.dump(project_dir+"\\python\\simulation","", false);
-    cout<<"queue length: "<<model.time_queue.size()<<endl;
+    model.predict_collide_of(model.particles[79], model.particles[17]);
 
-    model._button  = 0;
-    int bum = 0;
-    for(int i=0;bum<1000000;i++){
-        if(model.time_queue.empty()){
-            cout<<"empty time queue"<<endl;
-            break;
-        }
-        int step_result = model.step();
-        bum += (2==step_result);
-        if (step_result == 2 && bum%10 == 0){
-            model.dump(project_dir+"\\python\\simulation","", false);
-        }
-        if (step_result == 2 && bum%1000 == 0){
-            cout<<"bum print"<<endl;
-            model.print_stats();
-        }
-
-    }
-    cout<<"steps finished"<<endl;
-    model.print_stats();
-
-    cout<<"model hash: "<<model.hash()<<endl;
-
-
-
-    for (int q=0;q<0;q++){
-        auto x = model.time_queue.top();model.time_queue.pop();
-        cout<<x<<" validity: "<<model.check_tqo_validity(x)<<
-        " -> "<<model.predict_collide_of(x)<<endl;
-    }
-
-
-    cout<<"Finished"<<endl;
-
-    auto finish_time = std::chrono::steady_clock::now();
-    cout<<"Execution time: "<<(std::chrono::duration<double, std::milli>(finish_time - start_time)
-            .count())/1000 <<" seconds"<<endl;
+    return 1;
 }
 
 int main(){
-
+    test_collision2();
 //    time_interval_simulate();
     for(int i=0;i<1;i++){
-        run();
+//        run_simulation(100);
     }
     return 0;
 }

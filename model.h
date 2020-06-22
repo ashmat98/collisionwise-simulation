@@ -85,9 +85,13 @@ struct Model{
         return h.hash();
     }
 
+    // DUMP-LOAD
     void dump(string path, string name="",
             bool back_to_box=false, vector<int> particle_list={});
     void dump_inits(string path);
+
+    void load_inits(string path);
+    void load(string path);
 
     ~Model();
 
