@@ -6,8 +6,10 @@
 #include <assert.h>
 
 
-Model::Model(Box box_, int num_particles, Real particle_radius, Real particle_mass):
-box(box_),N(0),pool(MAX_THREADS),time(box.time){
+Model::Model(Box box_, int num_particles, Real particle_radius,
+        Real particle_mass, Real characteristic_free_run_time):
+box(box_),N(0),pool(MAX_THREADS),time(box.time),
+characteristic_free_run_time(characteristic_free_run_time){
     particles.reserve(num_particles);
     assert(num_particles==0 || (particle_radius > 0 && particle_mass>0));
 
@@ -119,7 +121,8 @@ TimeQueueObj Model::predict_collide_of(Particle& p1, Particle& p2){
 
     Real collision_time;
     bool collides = collide_with_lattice(
-            p2.realtive_to(p1),collision_time, &p1, &p2);
+            p2.realtive_to(p1),collision_time, &p1, &p2,
+            characteristic_free_run_time);
     if (_button == 1) {
         cout<<"relative particle: "<<p2.realtive_to(p1)<<endl;
         cout<<"   "<<p2.realtive_to(p1).back_to_box().transpose()<<endl;

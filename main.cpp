@@ -41,10 +41,10 @@ bool test_collision2(){
 }
 
 int main(){
-    test_collision2();
+//    test_collision2();
 //    time_interval_simulate();
     for(int i=0;i<1;i++){
-//        run_simulation(100);
+        run_simulation(100);
     }
     return 0;
 }

@@ -14,7 +14,7 @@ bool test_cllision(){
 
     auto point = p3.r + p3.v * 40+
         eg::Vector3d(0,0,p3.radius/2);
-    test_result &= p3.does_collide_with(point) == true;
+    test_result &= (p3.does_collide_with(point) == true);
 
     Real t = p3.collision_time(point);
     auto col_point = p3.r + p3.v * t;
@@ -38,7 +38,7 @@ bool comp1(V4& a, V4& b){
 const Real eps = 1e-20;
 
 bool collide_with_lattice(Particle particle, 
-    Real& collision_time, Particle* p1, Particle* p2){
+    Real& collision_time, Particle* p1, Particle* p2, Real forward_time){
 
     Particle p = particle.abs();
     p.back_to_box_inplace();
@@ -81,20 +81,28 @@ bool collide_with_lattice(Particle particle,
     Real eps3 = M(3,2) / M(0,2);
     //   eps3 = ro3 / a3
     ////
-    Real a,b,eps;
+//    Real a,b,eps,  a_other, b_other, eps_other;
     if (eps2 < eps3){ // ro2 < ro3
-        a=a2; b=b2; eps=eps2;
+        swap(a2,a3);
+        swap(b2,b3);
+        swap(eps2,eps3);
     }
-    else{
-        a=a3,b=b3,eps=eps3;
-    }
-    FastEngine eng(a, b, eps);
+
+    FastEngine eng(a3, b3, eps3 );
 
     bool found = false;
     while (true){
         auto [m,n] = eng.next();
-        Real t = t_0 + delta_t * m;
-        if (is_solution(m,a3,b3,1,eps3)){
+        if (n==-1){
+            break;
+        }
+        Real t_next = delta_t * m;
+        if (t_next > forward_time){
+            collision_time = t_0 + forward_time - abs(randn(0,0.001));
+            break;
+        }
+        Real t = t_0 + t_next;
+        if (is_solution(m,a2,b2,1,eps2)){
             auto point_t = p.at_time(t);
             auto point_l = p.box.closest_point(point_t);
             collision_time = p.collision_time(point_l);

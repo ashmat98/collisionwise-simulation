@@ -21,6 +21,8 @@ struct Model{
     ThreadPool pool;
     Real& time;
 
+    Real characteristic_free_run_time;
+
     /// stats
     int collision_counter = 0;
     int tqo_counter = 0;
@@ -28,11 +30,12 @@ struct Model{
     int max_queue_size = 0;
     ///
     int _button=0;
-
     chrono::time_point<chrono::steady_clock,
         chrono::duration<double, std::milli>> start_time_in_universe;
 
-    Model(Box box_, int num_particles=0, Real particle_radius=-1, Real particle_mass=1);
+    Model(Box box_, int num_particles=0, Real particle_radius=-1,
+            Real particle_mass=1,
+            Real characteristic_free_run_time=FREE_RUN_TIME);
     int add_particle(Real radius, Real mass=1);
     int add_particle(Particle);
     void init_queue();

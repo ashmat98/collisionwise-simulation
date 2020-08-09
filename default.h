@@ -26,5 +26,5 @@ typedef double Real;
 #define INF 1000000000
 
 #define MAX_M 2000
-
+#define FREE_RUN_TIME 100
 #endif
