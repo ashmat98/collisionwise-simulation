@@ -4,9 +4,45 @@
 
 #include "model.h"
 #include <fstream>
-void Model::load_inits(string path) {
-    ifstream myfile (path,
-            ios::in | ios::binary );
+#include <ctime>
+#include <limits>
+
+string get_time_string(){
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer[80];
+
+    time (&rawtime);
+    timeinfo = localtime(&rawtime);
+
+    strftime(buffer,sizeof(buffer),"%d-%m-%Y %H-%M-%S",timeinfo);
+    std::string str(buffer);
+    return str;
+}
+
+void Model::create_dumpfile(string name) {
+    if (name == "") {
+        name = "dump " + get_time_string();
+    }
+    string path = PROJECT_DIR + SEP + "dumps" + SEP + name + ".bin";
+    model_file.open(path, ios::out | ios::binary);
+    //////////////
+    dump_inits();
+
+}
+
+void Model::load(string path, bool inits_only) {
+    // getting file size
+    ifstream myfile;
+    myfile.open(path, ios::in | ios::binary );
+    myfile.ignore( std::numeric_limits<std::streamsize>::max() );
+    std::streamsize length = myfile.gcount();
+    cout<<length<<endl;
+    myfile.close();
+
+
+    myfile.open(path, ios::in | ios::binary );
+
 
     myfile.read((char*)box.sides.data(), 3*8);
     myfile.read((char*)&N, 4);
@@ -22,41 +58,33 @@ void Model::load_inits(string path) {
     for(auto& p: particles) {
         myfile.read((char*) &p.mass, 1 * 8);
     }
+    if (!inits_only){
+        int offset = length - (8+4+8*N*3+8*N*3);
+        myfile.seekg(offset);
+
+        myfile.read((char *)&box.time, 8);
+
+        int _n;
+        myfile.read((char*)&_n, 4);
+        cout<<"_n "<<_n<<endl;
+        assert(_n == N);
+
+        for(auto& p: particles){
+            myfile.read((char*)(p.r.data()), 3 * 8);
+
+        }
+        for(auto& p: particles) {
+            myfile.read((char*) p.v.data(), 3 * 8);
+        }
+    }
     myfile.close();
 
 }
-void Model::load(string path){
-    auto myfile = std::fstream(
-            path, std::ios::in | std::ios::binary);
-    myfile.read((char *)&box.time, 8);
 
-    int _n;
-    myfile.read((char*)&_n, 4);
-    assert(_n == N);
+void Model::dump(bool back_to_box, vector<int> particle_list){
+    assert(model_file.is_open());
 
-    for(auto& p: particles){
-        myfile.read((char*)(p.r.data()), 3 * 8);
-
-    }
-    for(auto& p: particles) {
-        myfile.read((char*) p.v.data(), 3 * 8);
-    }
-    myfile.close();
-}
-
-void Model::dump(string path, string name,
-                 bool back_to_box, vector<int> particle_list){
-    if (name == ""){
-        char buff[200];
-        snprintf(buff, sizeof(buff), "%0.3f - %d.bin",
-                 time, collision_counter);
-        name = buff;
-    }
-    auto myfile = std::fstream(
-            path+"\\"+name,
-            std::ios::out | std::ios::binary);
-//    myfile.write((char*)box.sides.data(), 3*8);
-    myfile.write((char*)&box.time, 8);
+    model_file.write((char*)&box.time, 8);
 
 
     vector<Particle> _particles;
@@ -71,8 +99,7 @@ void Model::dump(string path, string name,
     }
 
     int _n = (*particles_iter).size();
-//    cout<<"AAAAAAA "<<_n<<endl;
-    myfile.write((char*)&_n, 4);
+    model_file.write((char*)&_n, 4);
 
 
     for(auto& p: *particles_iter){
@@ -87,31 +114,21 @@ void Model::dump(string path, string name,
         else{
             data = (char*)p.r.data();
         }
-        myfile.write(data, 3 * 8);
+        model_file.write(data, 3 * 8);
     }
     for(auto& p: *particles_iter) {
-        myfile.write((char*) p.v.data(), 3 * 8);
+        model_file.write((char*) p.v.data(), 3 * 8);
     }
-    myfile.close();
 }
 
-void Model::dump_inits(string path){
-    char buff[200];
-    snprintf(buff, sizeof(buff), "model_inits.bin");
-    string name = buff;
-
-    auto myfile = std::fstream(
-            path+"\\"+name,
-            std::ios::out | std::ios::binary);
-
-    myfile.write((char*)box.sides.data(), 3*8);
-    myfile.write((char*)&N, 4);
+void Model::dump_inits(){
+    model_file.write((char*)box.sides.data(), 3*8);
+    model_file.write((char*)&N, 4);
 
     for(auto& p: particles) {
-        myfile.write((char*) &p.radius, 1 * 8);
+        model_file.write((char*) &p.radius, 1 * 8);
     }
     for(auto& p: particles) {
-        myfile.write((char*) &p.mass, 1 * 8);
+        model_file.write((char*) &p.mass, 1 * 8);
     }
-    myfile.close();
 }

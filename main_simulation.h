@@ -20,13 +20,13 @@ void run_simulation(int N_particles){
     Model model(Box(box_sides), N_particles, radius_small);
 
     model.init_queue();
-    model.dump_inits(PROJECT_DIR+"\\python");
-//    model.dump(PROJECT_DIR+"\\python\\simulation","", false);
+    model.create_dumpfile();
+
     cout<<"queue length: "<<model.time_queue.size()<<endl;
 
     model._button  = 0;
     int bum = 0;
-    for(int i=0;bum<1000000;i++){
+    for(int i=0;bum<3000;i++){
         if(model.time_queue.empty()){
             cout<<"empty time queue"<<endl;
             break;
@@ -34,7 +34,7 @@ void run_simulation(int N_particles){
         int step_result = model.step();
         bum += (2==step_result);
         if (step_result == 2 && bum%10 == 0){
-//            model.dump(PROJECT_DIR+"\\python\\simulation","", false);
+            model.dump(false);
         }
         if (step_result == 2 && bum%1000 == 0){
             cout<<"bum print"<<endl;

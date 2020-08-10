@@ -10,6 +10,8 @@
 #include <queue>
 #include "thread_pool.h"
 #include "hashing.h"
+#include <fstream>
+
 
 struct Model{
 
@@ -28,6 +30,10 @@ struct Model{
     int tqo_counter = 0;
     int step_counter = 0;
     int max_queue_size = 0;
+    /// IO
+    ofstream model_file;
+    void create_dumpfile(string name="");
+
     ///
     int _button=0;
     chrono::time_point<chrono::steady_clock,
@@ -89,12 +95,10 @@ struct Model{
     }
 
     // DUMP-LOAD
-    void dump(string path, string name="",
-            bool back_to_box=false, vector<int> particle_list={});
-    void dump_inits(string path);
+    void dump(bool back_to_box=false, vector<int> particle_list={});
+    void dump_inits();
 
-    void load_inits(string path);
-    void load(string path);
+   void load(string path, bool inits_only=true);
 
     ~Model();
 

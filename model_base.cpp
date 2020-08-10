@@ -152,7 +152,8 @@ TimeQueueObj Model::predict_collide_of(Particle& p1, Particle& p2){
 }
 
 Model::~Model() {
-
+    if (model_file.is_open())
+        model_file.close();
 }
 
 

@@ -19,7 +19,7 @@ namespace eg = Eigen;
 typedef double Real;
 
 #define PROJECT_DIR string("D:\\Ashot\\Desktop\\collisionwise-simulation")
-
+#define SEP "\\"
 
 
 #define EPS 1e-6
