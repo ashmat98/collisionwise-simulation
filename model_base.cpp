@@ -6,6 +6,7 @@
 #include <assert.h>
 
 
+
 Model::Model(Box box_, int num_particles, Real particle_radius,
         Real particle_mass, Real characteristic_free_run_time):
 box(box_),N(0),pool(MAX_THREADS),time(box.time),
@@ -17,6 +18,12 @@ characteristic_free_run_time(characteristic_free_run_time){
 
     for (int i=0;i<num_particles;i++){
         add_particle(particle_radius, particle_mass);
+    }
+}
+void Model::make_2D() {
+    for (Particle& p : particles){
+        p.r(2) = 0;
+        p.v(2) = 0;
     }
 }
 
@@ -70,6 +77,11 @@ inline int _max(int a, int b){
     return (a<b)?b:a;
 }
 int Model::step() {
+    /**
+     * return 1 -- tqo not valid
+     * return 2 -- tqo collides
+     * return 3 -- tqo not collides
+     */
     max_queue_size = _max(max_queue_size, time_queue.size());
     if (time_queue.empty()){
         return 0;

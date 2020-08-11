@@ -15,17 +15,19 @@ string get_time_string(){
     time (&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime(buffer,sizeof(buffer),"%d-%m-%Y %H-%M-%S",timeinfo);
+    strftime(buffer,sizeof(buffer)," %d-%m-%Y %H-%M-%S",timeinfo);
     std::string str(buffer);
     return str;
 }
 
 void Model::create_dumpfile(string name) {
     if (name == "") {
-        name = "dump " + get_time_string();
+        name = "dump" + get_time_string();
     }
     string path = PROJECT_DIR + SEP + "dumps" + SEP + name + ".bin";
+    cout<<path<<endl;
     model_file.open(path, ios::out | ios::binary);
+    assert(model_file.is_open());
     //////////////
     dump_inits();
 

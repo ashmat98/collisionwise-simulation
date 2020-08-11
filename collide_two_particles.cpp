@@ -37,7 +37,7 @@ bool comp1(V4& a, V4& b){
 
 const Real eps = 1e-20;
 
-bool collide_with_lattice(Particle particle, 
+bool collide_with_lattice(Particle particle,
     Real& collision_time, Particle* p1, Particle* p2, Real forward_time){
 
     Particle p = particle.abs();
@@ -57,11 +57,11 @@ bool collide_with_lattice(Particle particle,
     M.row(2) = p.v;
     M.row(3) = proj;
 
-    // cout<<M<<endl;
     V4 * q = (V4*)M.data();
-    // cout<<q->x<<" "<<q->y<<" "<<q->z<<" "<<q->w<<endl;
+
+    // sort velocities decreasing
     sort(q, q+3, comp1);
-    // cout<<M<<endl;
+
     /////0,1,2,3
     //// a,x,v,ro
     Real delta_t = M(0,0)/M(2,0); //   a1 / v1
@@ -82,7 +82,7 @@ bool collide_with_lattice(Particle particle,
     //   eps3 = ro3 / a3
     ////
 //    Real a,b,eps,  a_other, b_other, eps_other;
-    if (eps2 < eps3){ // ro2 < ro3
+    if (eps2 < eps3 || b3<eps){ // ro2 < ro3
         swap(a2,a3);
         swap(b2,b3);
         swap(eps2,eps3);
@@ -121,6 +121,7 @@ bool collide_with_lattice(Particle particle,
 //    }
     return found;
 }
+
 
 // int main(){
 //     cout<<"seed: "<<seed<<endl;

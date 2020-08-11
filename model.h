@@ -11,10 +11,11 @@
 #include "thread_pool.h"
 #include "hashing.h"
 #include <fstream>
+#include <utility>
 
 
-struct Model{
-
+class Model{
+public:
     vector<Particle> particles;
     priority_queue<TimeQueueObj> time_queue;
 
@@ -30,6 +31,7 @@ struct Model{
     int tqo_counter = 0;
     int step_counter = 0;
     int max_queue_size = 0;
+
     /// IO
     ofstream model_file;
     void create_dumpfile(string name="");
@@ -42,6 +44,7 @@ struct Model{
     Model(Box box_, int num_particles=0, Real particle_radius=-1,
             Real particle_mass=1,
             Real characteristic_free_run_time=FREE_RUN_TIME);
+    void make_2D();
     int add_particle(Real radius, Real mass=1);
     int add_particle(Particle);
     void init_queue();
@@ -55,6 +58,7 @@ struct Model{
         return predict_collide_of(particles[old_tqo.p1],
                                   particles[old_tqo.p2]);
     }
+
     int step();
     bool check_tqo_validity(const TimeQueueObj& tqo);
 
@@ -98,7 +102,7 @@ struct Model{
     void dump(bool back_to_box=false, vector<int> particle_list={});
     void dump_inits();
 
-   void load(string path, bool inits_only=true);
+    void load(string path, bool inits_only=true);
 
     ~Model();
 

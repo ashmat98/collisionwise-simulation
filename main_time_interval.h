@@ -9,15 +9,15 @@
 #include "model.h"
 
 void time_interval_simulate(){
-    Model model(Box(1,1,1));
-
-    model.add_particle(Particle(model.box,{0+0.2,0.5,0.5},
-                                {0.1,0,0}, 0.2, 300));
-    model.add_particle(Particle(model.box, {1-0.2,0.5,0.5},
-                                {-2,0,0}, 0.05, 1));
-
-    model.dump_inits(PROJECT_DIR + "\\python");
+    Model model(Box(1,1,1), 3,0.1, 1);
+//    model.add_particle(Particle(model.box,{0+0.2,0.5,0.5},
+//                                {0.1,0,0}, 0.2, 300));
+//    model.add_particle(Particle(model.box, {1-0.2,0.5,0.5},
+//                                {-2,0,0}, 0.05, 1));
+    model.make_2D();
+    model.create_dumpfile();
     model.init_queue();
+    model.dump();
 //    cout<<model.time<<" "<<model.box.time<<endl;
 //    for (int q=0;q<5;q++){
 //        auto x = model.time_queue.top();model.time_queue.pop();
@@ -27,9 +27,8 @@ void time_interval_simulate(){
 
 
     int bum = 0;
-    Real dt = 0.05;
-    mkdir((project_dir+"\\python\\simulation").c_str());
-    for(int i=0;bum<10;i++){
+    Real dt = 0.01;
+    for(int i=0;bum<200;i++){
         if(model.time_queue.empty()){
             cout<<"empty time queue"<<endl;
             break;
@@ -48,8 +47,7 @@ void time_interval_simulate(){
             }
         }
         if (model.time > -1) {
-            model.dump(PROJECT_DIR + "\\python\\simulation",
-                       "",true);
+            model.dump(true);
         }
     }
     cout<<"model hash: "<<model.hash()<<endl;

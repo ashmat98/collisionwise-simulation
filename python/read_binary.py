@@ -1,7 +1,14 @@
 import numpy as np 
+import os
 
 
-def read_binary(path):
+def recent_dump():
+    return "../dumps/"+sorted(os.listdir("../dumps/"))[-1]
+
+def read_binary(path=None):
+    if path is None:
+        path = recent_dump()
+
     box_size = np.fromfile(path, np.float64, count=3, offset=0)
     N = np.fromfile(path, np.int32, count=1, offset=3*8)[0]
 
@@ -35,5 +42,4 @@ def read_binary(path):
         ts.append(time_)
         rs.append(rs_)
         vs.append(vs_)
-    print("offset: ", offset)
-    return radii, masses, ts, rs, vs
+    return box_size, radii, masses, np.array(ts), np.array(rs), np.array(vs)

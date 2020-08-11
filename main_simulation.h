@@ -10,7 +10,7 @@
 #include <chrono>
 #include "eps_close.h"
 
-const Real radius_small = 0.01;
+const Real radius_small = 0.05;
 const eg::Vector3d box_sides(1,1,1);
 //const int N_particles = 100;
 
@@ -25,22 +25,22 @@ void run_simulation(int N_particles){
     cout<<"queue length: "<<model.time_queue.size()<<endl;
 
     model._button  = 0;
-    int bum = 0;
-    for(int i=0;bum<3000;i++){
+    for(int i=0;model.collision_counter<10000;i++){
         if(model.time_queue.empty()){
             cout<<"empty time queue"<<endl;
             break;
         }
         int step_result = model.step();
-        bum += (2==step_result);
-        if (step_result == 2 && bum%10 == 0){
+
+        if (step_result == 2 && model.collision_counter%10 == 0){
             model.dump(false);
         }
-        if (step_result == 2 && bum%1000 == 0){
+        if (step_result == 2 && model.collision_counter%1000 == 0){
             cout<<"bum print"<<endl;
             model.print_stats();
         }
-
+        if (model.step_counter> 2455526)
+            printf("step: %d %d\n",model.step_counter, step_result);
     }
     cout<<"steps finished"<<endl;
     model.print_stats();
