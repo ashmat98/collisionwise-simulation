@@ -9,7 +9,7 @@
 #include "model.h"
 
 void time_interval_simulate(){
-    Model model(Box(1,1,1), 3,0.1, 1);
+    Model model(Box(1,1,1), 10,0.06, 1);
 //    model.add_particle(Particle(model.box,{0+0.2,0.5,0.5},
 //                                {0.1,0,0}, 0.2, 300));
 //    model.add_particle(Particle(model.box, {1-0.2,0.5,0.5},
@@ -28,16 +28,19 @@ void time_interval_simulate(){
 
     int bum = 0;
     Real dt = 0.01;
-    for(int i=0;bum<200;i++){
+    Real last_dump = 0;
+    for(int i=0;bum<400;i++){
         if(model.time_queue.empty()){
             cout<<"empty time queue"<<endl;
             break;
         }
-        if (model.time_queue.top().time > model.time + dt){
-            model.time += dt;
+        if (model.time_queue.top().time > last_dump + dt){
+            model.time = last_dump + dt;
             for(auto& p : model.particles) {
                 model.update_particle_position(p);
             }
+            model.dump(true);
+            last_dump = model.time;
         }
         else{
             bool res = (2==model.step());
@@ -45,9 +48,6 @@ void time_interval_simulate(){
             if (res){
                 model.print_stats();
             }
-        }
-        if (model.time > -1) {
-            model.dump(true);
         }
     }
     cout<<"model hash: "<<model.hash()<<endl;

@@ -5,7 +5,7 @@ import os
 def recent_dump():
     return "../dumps/"+sorted(os.listdir("../dumps/"))[-1]
 
-def read_binary(path=None):
+def read_binary(path=None, stamps=-1):
     if path is None:
         path = recent_dump()
 
@@ -38,6 +38,8 @@ def read_binary(path=None):
         try:
             offset, time_, rs_, vs_ = read_stamp(offset)
         except Exception as e:
+            break
+        if stamps>0 and len(ts) == stamps:
             break
         ts.append(time_)
         rs.append(rs_)

@@ -102,7 +102,7 @@ public:
     void dump(bool back_to_box=false, vector<int> particle_list={});
     void dump_inits();
 
-    void load(string path, bool inits_only=true);
+    void load(string path, int frames=-1, bool inits_only=true);
 
     ~Model();
 

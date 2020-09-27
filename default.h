@@ -19,6 +19,7 @@ namespace eg = Eigen;
 typedef double Real;
 
 #define PROJECT_DIR string("D:\\Ashot\\Desktop\\collisionwise-simulation")
+#define FILE_EXTENSION ".dcbf"
 #define SEP "\\"
 
 

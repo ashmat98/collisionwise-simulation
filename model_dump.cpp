@@ -24,7 +24,7 @@ void Model::create_dumpfile(string name) {
     if (name == "") {
         name = "dump" + get_time_string();
     }
-    string path = PROJECT_DIR + SEP + "dumps" + SEP + name + ".bin";
+    string path = PROJECT_DIR + SEP + "dumps" + SEP + name + FILE_EXTENSION;
     cout<<path<<endl;
     model_file.open(path, ios::out | ios::binary);
     assert(model_file.is_open());
@@ -33,7 +33,7 @@ void Model::create_dumpfile(string name) {
 
 }
 
-void Model::load(string path, bool inits_only) {
+void Model::load(string path, int frames, bool inits_only) {
     // getting file size
     ifstream myfile;
     myfile.open(path, ios::in | ios::binary );
@@ -60,8 +60,18 @@ void Model::load(string path, bool inits_only) {
     for(auto& p: particles) {
         myfile.read((char*) &p.mass, 1 * 8);
     }
+    int inits_offset = 3*8+4+N*8+N*8;
+    int stamp_size = (8+4+8*N*3+8*N*3);
+
     if (!inits_only){
-        int offset = length - (8+4+8*N*3+8*N*3);
+        int offset;
+        if (frames<0){
+            offset = length + frames * stamp_size;
+        }
+        else{
+            offset = inits_offset + frames * stamp_size;
+        }
+
         myfile.seekg(offset);
 
         myfile.read((char *)&box.time, 8);
